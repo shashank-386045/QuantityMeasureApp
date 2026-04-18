@@ -1,69 +1,61 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class QuantityMeasurementAppTest {
+class QuantityLengthTest {
 
     @Test
-    void testEquality_SameValue_Inches() {
-        Inches inch1 = new Inches(1.0);
-        Inches inch2 = new Inches(1.0);
-        assertTrue(inch1.equals(inch2));
+    void testEquality_FeetToFeet_SameValue() {
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength q2 = new QuantityLength(1.0, LengthUnit.FEET);
+        assertTrue(q1.equals(q2));
     }
 
     @Test
-    void testEquality_DifferentValue_Inches() {
-        Inches inch1 = new Inches(1.0);
-        Inches inch2 = new Inches(2.0);
-        assertFalse(inch1.equals(inch2));
+    void testEquality_InchToInch_SameValue() {
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.INCH);
+        QuantityLength q2 = new QuantityLength(1.0, LengthUnit.INCH);
+        assertTrue(q1.equals(q2));
     }
 
     @Test
-    void testEquality_SameValue_Feet() {
-        Feet ft1 = new Feet(1.0);
-        Feet ft2 = new Feet(1.0);
-        assertTrue(ft1.equals(ft2));
+    void testEquality_FeetToFeet_DifferentValue() {
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength q2 = new QuantityLength(2.0, LengthUnit.FEET);
+        assertFalse(q1.equals(q2));
     }
 
     @Test
-    void testEquality_DifferentValue_Feet() {
-        Feet ft1 = new Feet(1.0);
-        Feet ft2 = new Feet(2.0);
-        assertFalse(ft1.equals(ft2));
+    void testEquality_InchToInch_DifferentValue() {
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.INCH);
+        QuantityLength q2 = new QuantityLength(2.0, LengthUnit.INCH);
+        assertFalse(q1.equals(q2));
     }
 
     @Test
-    void testEquality_NullComparison_Inches() {
-        Inches inch1 = new Inches(1.0);
-        Inches inch2 = null;
-        assertFalse(inch1.equals(inch2));
+    void testEquality_InchToFeet_EquivalentValue() {
+        QuantityLength q1 = new QuantityLength(12.0, LengthUnit.INCH);
+        QuantityLength q2 = new QuantityLength(1.0, LengthUnit.FEET);
+        assertTrue(q1.equals(q2));
     }
 
     @Test
-    void testEquality_NullComparison_Feet() {
-        Feet ft1 = new Feet(1.0);
-        Feet ft2 = null;
-        assertFalse(ft1.equals(ft2));
+    void testEquality_SameReference() {
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+        assertTrue(q1.equals(q1));
     }
 
     @Test
-    void testEquality_SameReference_Inches() {
-        Inches inch1 = new Inches(1.0);
-        assertTrue(inch1.equals(inch1));
+    void testEquality_NullComparison() {
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
+        QuantityLength q2 = null;
+        assertFalse(q1.equals(q2));
     }
 
     @Test
-    void testEquality_SameReference_Feet() {
-        Feet ft1 = new Feet(1.0);
-        assertTrue(ft1.equals(ft1));
-    }
-
-    @Test
-    void testEquality_NonNumericInput() {
-        // This test simulates invalid input handling.
-        // Since constructor only accepts double, non-numeric input would be compile-time error.
-        // You can wrap parsing logic in the app to handle this case.
-        assertThrows(NumberFormatException.class, () -> {
-            Double.parseDouble("abc"); // simulate invalid input
+    void testEquality_InvalidUnit() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            new QuantityLength(1.0, null);
         });
+        assertEquals("Unit type cannot be null", exception.getMessage());
     }
 }
