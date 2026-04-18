@@ -1,6 +1,8 @@
 enum LengthUnit {
-    FEET(1.0),        // Base unit
-    INCH(1.0 / 12.0); // 12 inches = 1 foot
+    FEET(1.0),                  // Base unit
+    INCH(1.0 / 12.0),           // 12 inches = 1 foot
+    YARD(3.0),                  // 1 yard = 3 feet
+    CENTIMETER(0.0328084);      // 1 cm = 0.0328084 feet (since 1 cm = 0.393701 inches)
 
     private final double conversionFactorToFeet;
 
@@ -40,8 +42,8 @@ class QuantityLength {
 
 class QuantityMeasurementApp {
     public static void main(String[] args) {
-        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
-        QuantityLength q2 = new QuantityLength(12.0, LengthUnit.INCH);
+        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.YARD);
+        QuantityLength q2 = new QuantityLength(3.0, LengthUnit.FEET);
 
         System.out.println("Comparison result: " + q1.equals(q2)); // true
     }
