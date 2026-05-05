@@ -1,45 +1,57 @@
-public class QuantityMeasurementApp {
+import java.util.Objects;
 
-    public static void main(String[] args) {
+public class QuantityLength {
+    private final double value;
+    private final LengthUnit unit;
 
-        System.out.println(
-                new QuantityLength(1.0, LengthUnit.FEET)
-                        .add(new QuantityLength(2.0, LengthUnit.FEET))
-        );
+    public QuantityLength(double value, LengthUnit unit) {
+        if (unit == null) throw new IllegalArgumentException("Unit cannot be null");
+        if (!Double.isFinite(value)) throw new IllegalArgumentException("Value must be a finite number");
 
-        System.out.println(
-                new QuantityLength(1.0, LengthUnit.FEET)
-                        .add(new QuantityLength(12.0, LengthUnit.INCHES))
-        );
+        this.value = value;
+        this.unit = unit;
+    }
 
-        System.out.println(
-                new QuantityLength(12.0, LengthUnit.INCHES)
-                        .add(new QuantityLength(1.0, LengthUnit.FEET))
-        );
+    // UC6: Default addition (uses unit of the first operand)
+    public QuantityLength add(QuantityLength other) {
+        return add(this, other, this.unit);
+    }
 
-        System.out.println(
-                new QuantityLength(1.0, LengthUnit.YARDS)
-                        .add(new QuantityLength(3.0, LengthUnit.FEET))
-        );
+    // UC7: Explicit target unit addition
+    public static QuantityLength add(QuantityLength l1, QuantityLength l2, LengthUnit targetUnit) {
+        validateInputs(l1, l2, targetUnit);
 
-        System.out.println(
-                new QuantityLength(36.0, LengthUnit.INCHES)
-                        .add(new QuantityLength(1.0, LengthUnit.YARDS))
-        );
+        // Convert to base unit and sum
+        double sumInBase = l1.unit.toBase(l1.value) + l2.unit.toBase(l2.value);
 
-        System.out.println(
-                new QuantityLength(2.54, LengthUnit.CENTIMETERS)
-                        .add(new QuantityLength(1.0, LengthUnit.INCHES))
-        );
+        // Convert sum to target unit
+        double finalValue = targetUnit.fromBase(sumInBase);
 
-        System.out.println(
-                new QuantityLength(5.0, LengthUnit.FEET)
-                        .add(new QuantityLength(0.0, LengthUnit.INCHES))
-        );
+        // Round to 3 decimal places for precision consistency
+        double roundedValue = Math.round(finalValue * 1000.0) / 1000.0;
 
-        System.out.println(
-                new QuantityLength(5.0, LengthUnit.FEET)
-                        .add(new QuantityLength(-2.0, LengthUnit.FEET))
-        );
+        return new QuantityLength(roundedValue, targetUnit);
+    }
+
+    private static void validateInputs(QuantityLength l1, QuantityLength l2, LengthUnit target) {
+        if (l1 == null || l2 == null || target == null) {
+            throw new IllegalArgumentException("Operands and target unit must not be null");
+        }
+    }
+
+    public double getValue() { return value; }
+    public LengthUnit getUnit() { return unit; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        QuantityLength that = (QuantityLength) o;
+        return Math.abs(that.value - this.value) < 0.001 && unit == that.unit;
+    }
+
+    @Override
+    public String toString() {
+        return value + " " + unit;
     }
 }
