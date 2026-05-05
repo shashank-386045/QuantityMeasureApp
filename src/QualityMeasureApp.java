@@ -1,50 +1,69 @@
-enum LengthUnit {
-    FEET(1.0),                  // Base unit
-    INCH(1.0 / 12.0),           // 12 inches = 1 foot
-    YARD(3.0),                  // 1 yard = 3 feet
-    CENTIMETER(0.0328084);      // 1 cm = 0.0328084 feet (since 1 cm = 0.393701 inches)
+public enum LengthUnit {
+    FEET(1.0),
+    INCHES(1.0 / 12.0),
+    YARDS(3.0),
+    CENTIMETERS(1.0 / 30.48);
 
-    private final double conversionFactorToFeet;
+    private final double conversionFactor;
 
-    LengthUnit(double conversionFactorToFeet) {
-        this.conversionFactorToFeet = conversionFactorToFeet;
+    LengthUnit(double conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
-    public double toFeet(double value) {
-        return value * conversionFactorToFeet;
+    public double convertToBaseUnit(double value) {
+        return value * conversionFactor;
+    }
+
+    public double convertFromBaseUnit(double baseValue) {
+        return baseValue / conversionFactor;
+    }
+
+    public double getConversionFactor() {
+        return conversionFactor;
     }
 }
 
-class QuantityLength {
+public class QuantityLength {
     private final double value;
     private final LengthUnit unit;
 
     public QuantityLength(double value, LengthUnit unit) {
-        if (unit == null) {
-            throw new IllegalArgumentException("Unit type cannot be null");
+        if (unit == null || Double.isNaN(value) || Double.isInfinite(value)) {
+            throw new IllegalArgumentException();
         }
         this.value = value;
         this.unit = unit;
     }
 
+    public QuantityLength convertTo(LengthUnit targetUnit) {
+        double baseValue = unit.convertToBaseUnit(value);
+        double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
+        return new QuantityLength(convertedValue, targetUnit);
+    }
+
+    public QuantityLength add(QuantityLength other, LengthUnit targetUnit) {
+        double baseValue1 = unit.convertToBaseUnit(value);
+        double baseValue2 = other.unit.convertToBaseUnit(other.value);
+        double sum = baseValue1 + baseValue2;
+        double convertedValue = targetUnit.convertFromBaseUnit(sum);
+        return new QuantityLength(convertedValue, targetUnit);
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true; // Reflexive
-        if (obj == null || getClass() != obj.getClass()) return false;
-
+        if (this == obj) return true;
+        if (!(obj instanceof QuantityLength)) return false;
         QuantityLength other = (QuantityLength) obj;
-        double thisValueInFeet = this.unit.toFeet(this.value);
-        double otherValueInFeet = other.unit.toFeet(other.value);
-
-        return Math.abs(thisValueInFeet - otherValueInFeet) < 0.0001; // Floating-point safe comparison
+        double baseValue1 = unit.convertToBaseUnit(value);
+        double baseValue2 = other.unit.convertToBaseUnit(other.value);
+        return Math.abs(baseValue1 - baseValue2) < 0.0001;
     }
-}
 
-class QuantityMeasurementApp {
-    public static void main(String[] args) {
-        QuantityLength q1 = new QuantityLength(1.0, LengthUnit.YARD);
-        QuantityLength q2 = new QuantityLength(3.0, LengthUnit.FEET);
+    public double getValue() {
+        return value;
+    }
 
-        System.out.println("Comparison result: " + q1.equals(q2)); // true
+    public LengthUnit getUnit() {
+        return unit;
     }
 }
