@@ -1,12 +1,11 @@
-public enum LengthUnit {
-    FEET(1.0),
-    INCHES(1.0 / 12.0),
-    YARDS(3.0),
-    CENTIMETERS(1.0 / 30.48);
+public enum WeightUnit {
+    KILOGRAM(1.0),
+    GRAM(0.001),
+    POUND(0.453592);
 
     private final double conversionFactor;
 
-    LengthUnit(double conversionFactor) {
+    WeightUnit(double conversionFactor) {
         this.conversionFactor = conversionFactor;
     }
 
@@ -23,11 +22,11 @@ public enum LengthUnit {
     }
 }
 
-public class QuantityLength {
+public class QuantityWeight {
     private final double value;
-    private final LengthUnit unit;
+    private final WeightUnit unit;
 
-    public QuantityLength(double value, LengthUnit unit) {
+    public QuantityWeight(double value, WeightUnit unit) {
         if (unit == null || Double.isNaN(value) || Double.isInfinite(value)) {
             throw new IllegalArgumentException();
         }
@@ -35,35 +34,49 @@ public class QuantityLength {
         this.unit = unit;
     }
 
-    public QuantityLength convertTo(LengthUnit targetUnit) {
+    public QuantityWeight convertTo(WeightUnit targetUnit) {
         double baseValue = unit.convertToBaseUnit(value);
         double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
-        return new QuantityLength(convertedValue, targetUnit);
+        return new QuantityWeight(convertedValue, targetUnit);
     }
 
-    public QuantityLength add(QuantityLength other, LengthUnit targetUnit) {
+    public QuantityWeight add(QuantityWeight other) {
+        return add(other, this.unit);
+    }
+
+    public QuantityWeight add(QuantityWeight other, WeightUnit targetUnit) {
         double baseValue1 = unit.convertToBaseUnit(value);
         double baseValue2 = other.unit.convertToBaseUnit(other.value);
         double sum = baseValue1 + baseValue2;
         double convertedValue = targetUnit.convertFromBaseUnit(sum);
-        return new QuantityLength(convertedValue, targetUnit);
+        return new QuantityWeight(convertedValue, targetUnit);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof QuantityLength)) return false;
-        QuantityLength other = (QuantityLength) obj;
+        if (!(obj instanceof QuantityWeight)) return false;
+        QuantityWeight other = (QuantityWeight) obj;
         double baseValue1 = unit.convertToBaseUnit(value);
         double baseValue2 = other.unit.convertToBaseUnit(other.value);
         return Math.abs(baseValue1 - baseValue2) < 0.0001;
+    }
+
+    @Override
+    public int hashCode() {
+        return Double.hashCode(unit.convertToBaseUnit(value));
     }
 
     public double getValue() {
         return value;
     }
 
-    public LengthUnit getUnit() {
+    public WeightUnit getUnit() {
         return unit;
+    }
+
+    @Override
+    public String toString() {
+        return value + " " + unit.name();
     }
 }
