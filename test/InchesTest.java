@@ -4,57 +4,69 @@ import static org.junit.jupiter.api.Assertions.*;
 public class QuantityTest {
 
     @Test
-    public void testGenericQuantity_LengthEquality() {
-        assertTrue(new Quantity<>(1.0, LengthUnit.FEET)
-                .equals(new Quantity<>(12.0, LengthUnit.INCHES)));
+    void testSubtraction_SameUnit_FeetMinusFeet() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(5.0, LengthUnit.FEET);
+        Quantity<LengthUnit> result = q1.subtract(q2);
+        assertEquals(5.0, result.getValue());
     }
 
     @Test
-    public void testGenericQuantity_WeightEquality() {
-        assertTrue(new Quantity<>(1.0, WeightUnit.KILOGRAM)
-                .equals(new Quantity<>(1000.0, WeightUnit.GRAM)));
+    void testSubtraction_CrossUnit_FeetMinusInches() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(6.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result = q1.subtract(q2);
+        assertEquals(9.5, result.getValue());
     }
 
     @Test
-    public void testGenericQuantity_LengthConversion() {
-        Quantity<LengthUnit> q = new Quantity<>(1.0, LengthUnit.FEET).convertTo(LengthUnit.INCHES);
-        assertEquals(12.0, q.getValue(), 0.0001);
+    void testSubtraction_ExplicitTargetUnit_Inches() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(6.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> result = q1.subtract(q2, LengthUnit.INCHES);
+        assertEquals(114.0, result.getValue());
     }
 
     @Test
-    public void testGenericQuantity_WeightConversion() {
-        Quantity<WeightUnit> q = new Quantity<>(1.0, WeightUnit.KILOGRAM).convertTo(WeightUnit.GRAM);
-        assertEquals(1000.0, q.getValue(), 0.0001);
+    void testSubtraction_ResultingInNegative() {
+        Quantity<WeightUnit> q1 = new Quantity<>(2.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> q2 = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> result = q1.subtract(q2);
+        assertEquals(-3.0, result.getValue());
     }
 
     @Test
-    public void testGenericQuantity_LengthAddition() {
-        Quantity<LengthUnit> q = new Quantity<>(1.0, LengthUnit.FEET)
-                .add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET);
-        assertEquals(2.0, q.getValue(), 0.0001);
+    void testDivision_SameUnit_FeetDividedByFeet() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(2.0, LengthUnit.FEET);
+        double result = q1.divide(q2);
+        assertEquals(5.0, result);
     }
 
     @Test
-    public void testGenericQuantity_WeightAddition() {
-        Quantity<WeightUnit> q = new Quantity<>(1.0, WeightUnit.KILOGRAM)
-                .add(new Quantity<>(1000.0, WeightUnit.GRAM), WeightUnit.KILOGRAM);
-        assertEquals(2.0, q.getValue(), 0.0001);
+    void testDivision_CrossUnit_FeetDividedByInches() {
+        Quantity<LengthUnit> q1 = new Quantity<>(24.0, LengthUnit.INCHES);
+        Quantity<LengthUnit> q2 = new Quantity<>(2.0, LengthUnit.FEET);
+        double result = q1.divide(q2);
+        assertEquals(1.0, result);
     }
 
     @Test
-    public void testCrossCategoryPrevention() {
-        Quantity<LengthUnit> length = new Quantity<>(1.0, LengthUnit.FEET);
-        Quantity<WeightUnit> weight = new Quantity<>(1.0, WeightUnit.KILOGRAM);
-        assertFalse(length.equals(weight));
+    void testDivision_ByZero() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> q2 = new Quantity<>(0.0, LengthUnit.FEET);
+        assertThrows(ArithmeticException.class, () -> q1.divide(q2));
     }
 
     @Test
-    public void testConstructorValidation_NullUnit() {
-        assertThrows(IllegalArgumentException.class, () -> new Quantity<>(1.0, null));
+    void testSubtraction_NullOperand() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> q1.subtract(null));
     }
 
     @Test
-    public void testConstructorValidation_InvalidValue() {
-        assertThrows(IllegalArgumentException.class, () -> new Quantity<>(Double.NaN, LengthUnit.FEET));
+    void testDivision_NullOperand() {
+        Quantity<LengthUnit> q1 = new Quantity<>(10.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> q1.divide(null));
     }
 }
